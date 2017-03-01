@@ -31,16 +31,7 @@ type Item = {
 export default class MyHomeBridge extends Component {
   mqttService: MqttService = new MqttService;
 
-//   items: Item[] = [
-//     {name: "Light table", key: "item/garage/table/light", status: "off", values: ["on", "off"]},
-//     {name: "Floor heating on", key: "action/floorHeatingOn"},
-//     {name: "Thermostat", key: "item/garage/thermostat", status: 120, number: {min: 100, max: 200}},
-//     {name: "Store", key: "item/garage/roof/store", status: "open", values: ["open", "stop", "close"]},
-//     {name: "WC vmc", key: "item/garage/wc/vmc", status: "on", values: ["on", "off"]},
-//     {name: "Light Kitchen", key: "item/garage/kitchen/light", status: "on", values: ["on", "off"]}
-//   ];
-
-  items: Item[] = [];
+  state: any = { items: [] };
 
   styles = StyleSheet.create({
     container: {
@@ -63,23 +54,30 @@ export default class MyHomeBridge extends Component {
       // this.mqttService.subscribe(this.settings.topicDefinition, msg => {
       this.mqttService.subscribe('definitions', msg => {
         console.log('subscribe definitions', msg);
-        this.items = JSON.parse(msg);
-        this._loadConsumers();
+        const items: Item[] = JSON.parse(msg);
+        this.setState({ items: items }); // , () => this._loadConsumers()
+        // this._loadConsumers();
       });
     // }
   }  
 
   _loadConsumers() {
-    for(let item of this.items) {
-      if (item.values && !item.status) {
-        item.status = '';
-      }
-      this.mqttService.subscribe(item.key, msg => item.status = msg);
+    for(let i in this.state.items) {
+      const item: Item = this.state.items[i];
+      this.mqttService.subscribe(item.key, msg => {
+          console.log('setStatus', this.state.items[i].name, msg);
+          // const state = Object.assign({}, this.state);
+          // state.items[i].status = msg;
+          // this.setState(state);
+          // console.log('afterSetStatus', this.state);
+          // this.state.items[i].status = msg;
+          // this.forceUpdate();
+      });
     }
   }  
 
   renderItems() {
-    return this.items.map(item => this.renderCardAction(item));
+    return this.state.items.map(item => this.renderCardAction(item));
   }
 
   renderCardAction(item: Item) {
@@ -90,7 +88,7 @@ export default class MyHomeBridge extends Component {
             </CardItem>
 
             <CardItem>
-                { !item.hasOwnProperty('status') && 
+                { !item.number && !item.values && 
                 <Body>
                     <Button block>
                         <Text>DO</Text>
@@ -102,7 +100,9 @@ export default class MyHomeBridge extends Component {
                 </View> }
                 { item.values && 
                 <View style={this.styles.container}>
+                    {item.status}
                     <SegmentedButton
+                          activeIndex={item.values.indexOf(item.status)}
                           items={item.values}
                           onSegmentBtnPress={(btn,index)=>{}}
                       />
