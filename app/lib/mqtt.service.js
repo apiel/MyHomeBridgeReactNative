@@ -6,7 +6,7 @@ import { AsyncStorage } from 'react-native';
 export default class {
     mqtt: any;
     isConnected: boolean = false;
-    _subscribeCallback: { [topic: string]: (message: string) => any } = {};
+    _subscribeCallback: { [topic: string]: (message: string, topic ?: string) => any } = {};
 
     constructor() {
         Mqtt({
@@ -19,7 +19,8 @@ export default class {
     }
 
     init(connectedCallback: Function) { // host: string, port: number
-        this.mqtt = new Paho.MQTT.Client('192.168.0.13', 3030, 'unique_client_name');
+        // this.mqtt = new Paho.MQTT.Client('192.168.0.13', 3030, 'unique_client_name');
+        this.mqtt = new Paho.MQTT.Client('192.168.2.224', 3030, 'unique_client_name');
         this.mqtt.onConnectionLost = () => this.isConnected = false;
         this.mqtt.onMessageArrived = (message: any) => this._consume(message);
         this.mqtt.connect({ onSuccess: () => { this.isConnected = true; connectedCallback(); }});
@@ -31,11 +32,11 @@ export default class {
         console.log('topic', topic);
         console.log('topic in this._subscribeCallback', this._subscribeCallback);
         if (topic in this._subscribeCallback) {
-           this._subscribeCallback[topic](message.payloadString);
+           this._subscribeCallback[topic](message.payloadString, topic);
         }
     }
 
-    subscribe(topic: string, callback: (message: string) => any) {
+    subscribe(topic: string, callback: (message: string, topic ?: string) => any) {
         if (this.mqtt) {
             console.log('Subscribe to topic', topic);
             this.mqtt.subscribe(topic);

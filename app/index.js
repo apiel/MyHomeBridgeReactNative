@@ -34,6 +34,11 @@ type Item = {
 
   @observable items: Item[] = [];
 
+//   items = observable([
+//         {name:"Stop floor heating",key:"action/floorHeatingOff"},
+//         {name:"Spot light chillarea",key:"item/garage/chill/light",values:["on","off"]}
+//    ]);
+
   styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -46,6 +51,7 @@ type Item = {
 
   constructor() {
       super();
+      console.log('init connection');
       this.mqttService.init(() => this._loadItems() );
   }
 
@@ -55,27 +61,31 @@ type Item = {
       // this.mqttService.subscribe(this.settings.topicDefinition, msg => {
       this.mqttService.subscribe('definitions', msg => {
         console.log('subscribe definitions', msg);
-        let items = JSON.parse(msg);
-        // items[2].status = 'off';
-        // this.items = items;
-        this.items = JSON.parse(msg);
+        this.items = JSON.parse(msg).map(item => { item.status = ''; return item; });
+        // this.items = JSON.parse(msg);
         this._loadConsumers();
       });
     // }
   }  
 
   _loadConsumers() {
-    for (let i = 0; i < this.items.length; i++) { 
-    // for(let item of this.items) {
-      const item: Item = this.items[i];
-      this.mqttService.subscribe(item.key, msg => {
-          console.log('setStatus', item.name, msg);
-          const items = this.items.slice();
-          items[i].status = msg;
-          this.items = items;
-        //   item.status = msg;
-      });
+    for(let item of this.items) {
+       this.mqttService.subscribe(item.key, msg => {
+          console.log('setStatus', item.name, msg);       
+          item.status = msg;
+       });        
     }
+
+    // for (let i = 0; i < this.items.length; i++) { 
+    //   const item: Item = this.items[i];
+    //   this.mqttService.subscribe(item.key, msg => {
+    //       console.log('setStatus', item.name, msg);
+    //     //   const items = this.items.slice();
+    //     //   items[i].status = msg;
+    //     //   this.items = items;
+    //     this.items[i].status = msg;
+    //   });
+    // }
   }  
 
   renderItems() {
@@ -141,3 +151,27 @@ type Item = {
 }
 
 AppRegistry.registerComponent('MyHomeBridge', () => MyHomeBridge);
+
+
+
+// import { autorun} from "mobx";
+
+// var todos = observable([
+//     { title: "Spoil tea", completed: true },
+//     { title: "Make coffee", completed: false }
+// ]);
+
+// autorun(() => {
+//     console.log("Remaining:", todos
+//         .filter(todo => !todo.completed)
+//         .map(todo => todo.title)
+//         .join(", ")
+//     );
+// });
+// // Prints: 'Remaining: Make coffee'
+
+// todos[2] = { title: 'Take a nap', completed: false };
+
+// todos.forEach(todo => {
+//     todo.completed = false;
+// })
