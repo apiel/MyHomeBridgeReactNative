@@ -3,7 +3,8 @@
  * https://github.com/facebook/react-native
  * @flow
  */
-
+import { observable } from 'mobx';
+import { observer } from 'mobx-react/native';
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -28,10 +29,10 @@ type Item = {
   number?: { min: number, max: number };
 }
 
-export default class MyHomeBridge extends Component {
+@observer export default class MyHomeBridge extends Component {
   mqttService: MqttService = new MqttService;
 
-  state: any = { items: [] };
+  @observable items: Item[] = [];
 
   styles = StyleSheet.create({
     container: {
@@ -54,30 +55,31 @@ export default class MyHomeBridge extends Component {
       // this.mqttService.subscribe(this.settings.topicDefinition, msg => {
       this.mqttService.subscribe('definitions', msg => {
         console.log('subscribe definitions', msg);
-        const items: Item[] = JSON.parse(msg);
-        this.setState({ items: items }); // , () => this._loadConsumers()
-        // this._loadConsumers();
+        let items = JSON.parse(msg);
+        // items[2].status = 'off';
+        // this.items = items;
+        this.items = JSON.parse(msg);
+        this._loadConsumers();
       });
     // }
   }  
 
   _loadConsumers() {
-    for(let i in this.state.items) {
-      const item: Item = this.state.items[i];
+    for (let i = 0; i < this.items.length; i++) { 
+    // for(let item of this.items) {
+      const item: Item = this.items[i];
       this.mqttService.subscribe(item.key, msg => {
-          console.log('setStatus', this.state.items[i].name, msg);
-          // const state = Object.assign({}, this.state);
-          // state.items[i].status = msg;
-          // this.setState(state);
-          // console.log('afterSetStatus', this.state);
-          // this.state.items[i].status = msg;
-          // this.forceUpdate();
+          console.log('setStatus', item.name, msg);
+          const items = this.items.slice();
+          items[i].status = msg;
+          this.items = items;
+        //   item.status = msg;
       });
     }
   }  
 
   renderItems() {
-    return this.state.items.map(item => this.renderCardAction(item));
+    return this.items.map(item => this.renderCardAction(item));
   }
 
   renderCardAction(item: Item) {
@@ -100,7 +102,7 @@ export default class MyHomeBridge extends Component {
                 </View> }
                 { item.values && 
                 <View style={this.styles.container}>
-                    {item.status}
+                    <Text>Yo: {item.status}</Text>
                     <SegmentedButton
                           activeIndex={item.values.indexOf(item.status)}
                           items={item.values}
