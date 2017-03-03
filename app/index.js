@@ -14,7 +14,8 @@ import {
 
 import { Container, Header, Content, 
          Text, Title, Button, Left, Segment,
-         Right, Body, Icon, Card, CardItem } from 'native-base'; 
+         Right, Body, Icon, Card, CardItem,
+         Drawer } from 'native-base'; 
 
 import SegmentedButton from 'react-native-segmented-button';
 
@@ -34,12 +35,14 @@ import ItemsStore from './store/items';
     },
   });
 
+  _drawer: any;
+
   constructor() {
       super();
       this.itemsStore = new ItemsStore;
-      this.itemsStore.topicDefinitions = 'definitions';
-      this.itemsStore.host = '192.168.0.13';
-      this.itemsStore.port = 3030;
+    //   this.itemsStore.topicDefinitions = 'definitions';
+    //   this.itemsStore.host = '192.168.0.13';
+    //   this.itemsStore.port = 3030;
   }
 
   renderItems() {
@@ -76,15 +79,20 @@ import ItemsStore from './store/items';
             </CardItem>
         </Card>      
     );
-  }
+  } 
 
   render() {
     return (
+        <Drawer
+            type="overlay"
+            ref={(ref) => { this._drawer = ref; }}
+            content={<Text>YoYo</Text>}
+        >
             <Container>
                 <Header>
                     <Left>
-                        <Button transparent>
-                            <Icon name='arrow-back' />
+                        <Button onPress={() => this._drawer._root.open()} transparent>
+                            <Icon name='menu' />
                         </Button>
                     </Left>
                     <Body>
@@ -92,7 +100,7 @@ import ItemsStore from './store/items';
                     </Body>
                     <Right>
                         <Button transparent>
-                            <Icon name='menu' />
+                            <Icon name='settings' />
                         </Button>
                     </Right>
                 </Header>              
@@ -100,6 +108,7 @@ import ItemsStore from './store/items';
                   { this.renderItems() }
                 </Content>
             </Container>
+        </Drawer>            
     );
   }
 }
