@@ -3,7 +3,6 @@
  * https://github.com/facebook/react-native
  * @flow
  */
-import { observable } from 'mobx';
 import { observer } from 'mobx-react/native';
 import React, { Component } from 'react';
 import {
@@ -19,25 +18,11 @@ import { Container, Header, Content,
 
 import SegmentedButton from 'react-native-segmented-button';
 
-import MqttService from './lib/mqtt.service';
-
-type Item = {
-  name: string; 
-  key: string;
-  status?: string|number; 
-  values?: string[]; 
-  number?: { min: number, max: number };
-}
+import type { Item } from './store/items';
+import ItemsStore from './store/items';
 
 @observer export default class MyHomeBridge extends Component {
-  mqttService: MqttService = new MqttService;
-
-  @observable items: Item[] = [];
-
-//   items = observable([
-//         {name:"Stop floor heating",key:"action/floorHeatingOff"},
-//         {name:"Spot light chillarea",key:"item/garage/chill/light",values:["on","off"]}
-//    ]);
+  itemsStore: ItemsStore;
 
   styles = StyleSheet.create({
     container: {
@@ -51,45 +36,14 @@ type Item = {
 
   constructor() {
       super();
-      console.log('init connection');
-      this.mqttService.init(() => this._loadItems() );
+      this.itemsStore = new ItemsStore;
+      this.itemsStore.topicDefinitions = 'definitions';
+      this.itemsStore.host = '192.168.0.13';
+      this.itemsStore.port = 3030;
   }
 
-  _loadItems() {
-      console.log('loadItems after connect', this);
-    // if (this.settings.topicDefinition) {
-      // this.mqttService.subscribe(this.settings.topicDefinition, msg => {
-      this.mqttService.subscribe('definitions', msg => {
-        console.log('subscribe definitions', msg);
-        this.items = JSON.parse(msg).map(item => { item.status = ''; return item; });
-        // this.items = JSON.parse(msg);
-        this._loadConsumers();
-      });
-    // }
-  }  
-
-  _loadConsumers() {
-    for(let item of this.items) {
-       this.mqttService.subscribe(item.key, msg => {
-          console.log('setStatus', item.name, msg);       
-          item.status = msg;
-       });        
-    }
-
-    // for (let i = 0; i < this.items.length; i++) { 
-    //   const item: Item = this.items[i];
-    //   this.mqttService.subscribe(item.key, msg => {
-    //       console.log('setStatus', item.name, msg);
-    //     //   const items = this.items.slice();
-    //     //   items[i].status = msg;
-    //     //   this.items = items;
-    //     this.items[i].status = msg;
-    //   });
-    // }
-  }  
-
   renderItems() {
-    return this.items.map(item => this.renderCardAction(item));
+    return this.itemsStore.items.map(item => this.renderCardAction(item));
   }
 
   renderCardAction(item: Item) {
@@ -151,27 +105,3 @@ type Item = {
 }
 
 AppRegistry.registerComponent('MyHomeBridge', () => MyHomeBridge);
-
-
-
-// import { autorun} from "mobx";
-
-// var todos = observable([
-//     { title: "Spoil tea", completed: true },
-//     { title: "Make coffee", completed: false }
-// ]);
-
-// autorun(() => {
-//     console.log("Remaining:", todos
-//         .filter(todo => !todo.completed)
-//         .map(todo => todo.title)
-//         .join(", ")
-//     );
-// });
-// // Prints: 'Remaining: Make coffee'
-
-// todos[2] = { title: 'Take a nap', completed: false };
-
-// todos.forEach(todo => {
-//     todo.completed = false;
-// })
