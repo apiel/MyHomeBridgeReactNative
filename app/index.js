@@ -3,7 +3,7 @@
  * https://github.com/facebook/react-native
  * @flow
  */
-import { observable } from 'mobx'
+import { observable, toJS } from 'mobx'
 import { observer } from 'mobx-react/native';
 import React, { Component } from 'react';
 import {
@@ -20,7 +20,8 @@ import { Container, Header, Content,
 
 import SegmentedButton from 'react-native-segmented-button';
 
-import DrawerConfig from './config'
+import DrawerConfig from './config';
+import DrawerMenu from './menu';
 
 import type { Item } from './store/items';
 import ItemsStore from './store/items';
@@ -55,7 +56,7 @@ type Config = { name: string, topicDefinitions: string, host: string, port: numb
   constructor() {
       super();
       this.itemsStore = new ItemsStore;    
-      this._configBackup = Object.assign({}, this._config);
+      this._configBackup = toJS(this._config); // to remove when loadConfig is uncommented
     //   this.loadConfig();
   }
 
@@ -69,7 +70,7 @@ type Config = { name: string, topicDefinitions: string, host: string, port: numb
   }
 
   loadConfig() {
-      this._configBackup = Object.assign({}, this._config);
+      this._configBackup = toJS(this._config);
       this.itemsStore.topicDefinitions = this._config.topicDefinitions;
       this.itemsStore.host = this._config.host;
       this.itemsStore.port = this._config.port;      
@@ -115,7 +116,7 @@ type Config = { name: string, topicDefinitions: string, host: string, port: numb
     return (
         <Drawer
             ref={(ref) => { this._drawerMenu = ref; }}
-            content={ <Content style={{backgroundColor: '#FFFFFF'}}><Text>YoYo</Text></Content> }
+            content={ <DrawerMenu /> }
         >
           <Drawer
               ref={(ref) => { this._drawerConfig = ref; }}
