@@ -3,6 +3,7 @@
  * https://github.com/facebook/react-native
  * @flow
  */
+import { observable } from 'mobx'
 import { observer } from 'mobx-react/native';
 import React, { Component } from 'react';
 import {
@@ -19,8 +20,12 @@ import { Container, Header, Content,
 
 import SegmentedButton from 'react-native-segmented-button';
 
+import DrawerConfig from './config'
+
 import type { Item } from './store/items';
 import ItemsStore from './store/items';
+
+type Config = { name: string, topicDefinitions: string, host: string, port: number };
 
 @observer export default class MyHomeBridge extends Component {
   itemsStore: ItemsStore;
@@ -35,14 +40,39 @@ import ItemsStore from './store/items';
     },
   });
 
-  _drawer: any;
+  _drawerMenu: any;
+  _drawerConfig: any;
+
+  @observable _config: Config = {
+      name: 'Garage',
+      topicDefinitions: 'definitions',
+      host: '192.168.0.13',
+      port: 3030
+  };
+
+  _configBackup: Config;
 
   constructor() {
       super();
-      this.itemsStore = new ItemsStore;
-    //   this.itemsStore.topicDefinitions = 'definitions';
-    //   this.itemsStore.host = '192.168.0.13';
-    //   this.itemsStore.port = 3030;
+      this.itemsStore = new ItemsStore;    
+      this._configBackup = Object.assign({}, this._config);
+    //   this.loadConfig();
+  }
+
+  restoreConfig() {
+      this._config = this._configBackup;
+  }
+
+  saveConfig() {
+      this._drawerConfig._root.close();
+      this.loadConfig();
+  }
+
+  loadConfig() {
+      this._configBackup = Object.assign({}, this._config);
+      this.itemsStore.topicDefinitions = this._config.topicDefinitions;
+      this.itemsStore.host = this._config.host;
+      this.itemsStore.port = this._config.port;      
   }
 
   renderItems() {
@@ -84,14 +114,20 @@ import ItemsStore from './store/items';
   render() {
     return (
         <Drawer
-            type="overlay"
-            ref={(ref) => { this._drawer = ref; }}
-            content={<Text>YoYo</Text>}
+            ref={(ref) => { this._drawerMenu = ref; }}
+            content={ <Content style={{backgroundColor: '#FFFFFF'}}><Text>YoYo</Text></Content> }
         >
+          <Drawer
+              ref={(ref) => { this._drawerConfig = ref; }}
+              side="right"
+              content={ <DrawerConfig config={ this._config } 
+                                      onSave={ () => this.saveConfig() } 
+                                      onCancel={ () => this.restoreConfig() } /> }
+          >
             <Container>
                 <Header>
                     <Left>
-                        <Button onPress={() => this._drawer._root.open()} transparent>
+                        <Button onPress={() => this._drawerMenu._root.open()} transparent>
                             <Icon name='menu' />
                         </Button>
                     </Left>
@@ -99,7 +135,7 @@ import ItemsStore from './store/items';
                         <Title>Header</Title>
                     </Body>
                     <Right>
-                        <Button transparent>
+                        <Button onPress={() => this._drawerConfig._root.open()} transparent>
                             <Icon name='settings' />
                         </Button>
                     </Right>
@@ -108,6 +144,7 @@ import ItemsStore from './store/items';
                   { this.renderItems() }
                 </Content>
             </Container>
+          </Drawer>  
         </Drawer>            
     );
   }
