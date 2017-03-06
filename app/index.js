@@ -16,7 +16,7 @@ import {
 import { Container, Header, Content, 
          Text, Title, Button, Left, Segment,
          Right, Body, Icon, Card, CardItem,
-         Drawer } from 'native-base'; 
+         Drawer, Badge } from 'native-base'; 
 
 import SegmentedButton from 'react-native-segmented-button';
 
@@ -57,7 +57,7 @@ type Config = { name: string, topicDefinitions: string, host: string, port: numb
       super();
       this.itemsStore = new ItemsStore;    
       this._configBackup = toJS(this._config); // to remove when loadConfig is uncommented
-    //   this.loadConfig();
+      // this.loadConfig();
   }
 
   restoreConfig() {
@@ -85,6 +85,11 @@ type Config = { name: string, topicDefinitions: string, host: string, port: numb
         <Card>
             <CardItem header>
                 <Text>{item.name}</Text>
+                { (item.values || item.number) && <Right>
+                    <Badge info>
+                        <Text>{item.status}</Text>
+                    </Badge>
+                </Right> }
             </CardItem>
 
             <CardItem>
@@ -99,8 +104,7 @@ type Config = { name: string, topicDefinitions: string, host: string, port: numb
                     <Slider />
                 </View> }
                 { item.values && 
-                <View style={this.styles.container}>
-                    <Text>Yo: {item.status}</Text>
+                <View style={this.styles.container}>                    
                     <SegmentedButton
                           activeIndex={item.values.indexOf(item.status)}
                           items={item.values}

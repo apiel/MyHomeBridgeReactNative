@@ -39,6 +39,6 @@ export default class {
           port: 1883
       };
       this.configs.push(config);
-      await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.configs));
+      // await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.configs));
   }
 }
