@@ -15,6 +15,7 @@ import type { Config } from './store/configs';
   constructor() {
       super();
       this.configsStore = new ConfigsStore;
+      this.configsStore.init();
   }
 
   render() {
@@ -27,7 +28,7 @@ import type { Config } from './store/configs';
                 </ListItem> 
             )}           
 
-            <Button onPress={() => console.log(666) } transparent>
+            <Button onPress={() => this.configsStore.add() } transparent>
                 <Icon name='add' />
             </Button>            
         </Content>

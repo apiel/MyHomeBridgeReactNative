@@ -26,10 +26,12 @@ import DrawerMenu from './menu';
 import type { Item } from './store/items';
 import ItemsStore from './store/items';
 
-type Config = { name: string, topicDefinitions: string, host: string, port: number };
+import type { Config } from './store/configs';
+import ConfigStore from './store/configs';
 
 @observer export default class MyHomeBridge extends Component {
   itemsStore: ItemsStore;
+  configStore: ConfigStore;
 
   styles = StyleSheet.create({
     container: {
@@ -53,27 +55,38 @@ type Config = { name: string, topicDefinitions: string, host: string, port: numb
 
   _configBackup: Config;
 
-  constructor() {
+  constructor() { // this.configStore.get()
       super();
-      this.itemsStore = new ItemsStore;    
+      this.itemsStore = new ItemsStore;  
+      this.configStore = new ConfigStore;  
+      this.init();
+  }
+
+  async init() {
+      await this.configStore.init();
       this._configBackup = toJS(this._config); // to remove when loadConfig is uncommented
       // this.loadConfig();
   }
 
-  restoreConfig() {
-      this._config = this._configBackup;
+  cancelConfig() {
+      this._drawerConfig._root.close();
+      this.configStore.restore();
   }
 
   saveConfig() {
       this._drawerConfig._root.close();
+      this.configStore.save();
       this.loadConfig();
   }
 
   loadConfig() {
-      this._configBackup = toJS(this._config);
-      this.itemsStore.topicDefinitions = this._config.topicDefinitions;
-      this.itemsStore.host = this._config.host;
-      this.itemsStore.port = this._config.port;      
+      const config = this.configStore.get();
+      if (config) {
+        this._configBackup = toJS(config);
+        this.itemsStore.topicDefinitions = config.topicDefinitions;
+        this.itemsStore.host = config.host;
+        this.itemsStore.port = config.port;      
+      }
   }
 
   renderItems() {
@@ -122,12 +135,12 @@ type Config = { name: string, topicDefinitions: string, host: string, port: numb
             ref={(ref) => { this._drawerMenu = ref; }}
             content={ <DrawerMenu /> }
         >
-          <Drawer
+          { this.configStore.get() && <Drawer
               ref={(ref) => { this._drawerConfig = ref; }}
               side="right"
-              content={ <DrawerConfig config={ this._config } 
+              content={ <DrawerConfig config={ this.configStore.get() }
                                       onSave={ () => this.saveConfig() } 
-                                      onCancel={ () => this.restoreConfig() } /> }
+                                      onCancel={ () => this.cancelConfig() } /> }
           >
             <Container>
                 <Header>
@@ -149,8 +162,8 @@ type Config = { name: string, topicDefinitions: string, host: string, port: numb
                   { this.renderItems() }
                 </Content>
             </Container>
-          </Drawer>  
-        </Drawer>            
+          </Drawer>}
+        </Drawer>           
     );
   }
 }
