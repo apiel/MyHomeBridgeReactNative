@@ -23,7 +23,7 @@ import type { Config } from './store/configs';
         <Content style={{backgroundColor: '#DDDDDD', opacity:0.9, padding: 10, flex: 1}}>  
             <H1>MyHomeBridge</H1>                 
             {this.configsStore.configs.map((config: Config, key: number) =>
-                <ListItem key={key}>
+                <ListItem key={key} onPress={() => this.configsStore.set(key) }>
                     <Text>{config.name}</Text>
                 </ListItem> 
             )}           

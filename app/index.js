@@ -136,7 +136,7 @@ import ConfigStore from './store/configs';
                         </Button>
                     </Left>
                     <Body>
-                        <Title>Header</Title>
+                        <Title>{ this.configStore.get().name }</Title>
                     </Body>
                     <Right>
                         <Button onPress={() => this._drawerConfig._root.open()} transparent>
