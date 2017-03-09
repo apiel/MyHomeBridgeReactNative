@@ -46,15 +46,6 @@ import ConfigStore from './store/configs';
   _drawerMenu: any;
   _drawerConfig: any;
 
-  @observable _config: Config = {
-      name: 'Garage',
-      topicDefinitions: 'definitions',
-      host: '192.168.0.13',
-      port: 3030
-  };
-
-  _configBackup: Config;
-
   constructor() {
       super();
       this.itemsStore = new ItemsStore;  
@@ -64,7 +55,6 @@ import ConfigStore from './store/configs';
 
   async init() {
       await this.configStore.init();
-      this._configBackup = toJS(this._config); // to remove when loadConfig is uncommented
       // this.loadConfig();
   }
 
@@ -80,7 +70,6 @@ import ConfigStore from './store/configs';
 
   loadConfig() {
     const config: Config = this.configStore.get();
-    this._configBackup = toJS(config);
     this.itemsStore.topicDefinitions = config.topicDefinitions;
     this.itemsStore.host = config.host;
     this.itemsStore.port = config.port;      
