@@ -49,8 +49,12 @@ export default class {
       this.configs.push(this.default);
   }
 
-  get(): Config | null {
-      return this.configs.length ? this.configs[this.activeKey] : null;
+  isNotEmpty(): boolean {
+    return this.configs.length > 0;
+  }
+
+  get(): Config {
+      return this.configs[this.activeKey];
   }
 
   async set(key: number) {

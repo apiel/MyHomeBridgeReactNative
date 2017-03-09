@@ -11,10 +11,10 @@ import ConfigStore from './store/configs';
 @observer export default class extends Component {
   render() {
     const configStore: ConfigStore = this.props.configStore;
-    const config: Config | null = configStore.get();
+    const config: Config = configStore.get();
     return (
         <Content style={{backgroundColor: '#DDDDDD', opacity:0.9, padding: 10, flex: 1}}>
-            { config && <Form style={{marginBottom: 15}}>
+            <Form style={{marginBottom: 15}}>
                 <Item stackedLabel>
                     <Label>Name</Label>
                     <Input value={ config.name }
@@ -36,7 +36,7 @@ import ConfigStore from './store/configs';
                     <Input value={ config.topicDefinitions }
                            onChangeText={(value) => { config.topicDefinitions = value; }}/>
                 </Item>                                        
-            </Form> }
+            </Form>
             <Button block style={{margin: 5}} onPress={() => this.props.onSave()}>
                 <Text>Save</Text>
             </Button>    

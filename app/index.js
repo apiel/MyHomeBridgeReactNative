@@ -55,7 +55,7 @@ import ConfigStore from './store/configs';
 
   _configBackup: Config;
 
-  constructor() { // this.configStore.get()
+  constructor() {
       super();
       this.itemsStore = new ItemsStore;  
       this.configStore = new ConfigStore;  
@@ -80,13 +80,11 @@ import ConfigStore from './store/configs';
   }
 
   loadConfig() {
-      const config = this.configStore.get();
-      if (config) {
-        this._configBackup = toJS(config);
-        this.itemsStore.topicDefinitions = config.topicDefinitions;
-        this.itemsStore.host = config.host;
-        this.itemsStore.port = config.port;      
-      }
+    const config: Config = this.configStore.get();
+    this._configBackup = toJS(config);
+    this.itemsStore.topicDefinitions = config.topicDefinitions;
+    this.itemsStore.host = config.host;
+    this.itemsStore.port = config.port;      
   }
 
   renderItems() {
@@ -135,7 +133,7 @@ import ConfigStore from './store/configs';
             ref={(ref) => { this._drawerMenu = ref; }}
             content={ <DrawerMenu /> }
         >
-          { this.configStore.get() && <Drawer
+          { this.configStore.isNotEmpty() && <Drawer
               ref={(ref) => { this._drawerConfig = ref; }}
               side="right"
               content={ <DrawerConfig configStore={ this.configStore }
