@@ -138,7 +138,7 @@ import ConfigStore from './store/configs';
           { this.configStore.get() && <Drawer
               ref={(ref) => { this._drawerConfig = ref; }}
               side="right"
-              content={ <DrawerConfig config={ this.configStore.get() }
+              content={ <DrawerConfig configStore={ this.configStore }
                                       onSave={ () => this.saveConfig() } 
                                       onCancel={ () => this.cancelConfig() } /> }
           >
