@@ -68,8 +68,7 @@ import ConfigStore from './store/configs';
       // this.loadConfig();
   }
 
-  cancelConfig() {
-      this._drawerConfig._root.close();
+  onCloseDrawerConfig() {
       this.configStore.restore();
   }
 
@@ -136,9 +135,9 @@ import ConfigStore from './store/configs';
           { this.configStore.isNotEmpty() && <Drawer
               ref={(ref) => { this._drawerConfig = ref; }}
               side="right"
+              onClose={ () => this.onCloseDrawerConfig() }
               content={ <DrawerConfig configStore={ this.configStore }
-                                      onSave={ () => this.saveConfig() } 
-                                      onCancel={ () => this.cancelConfig() } /> }
+                                      onSave={ () => this.saveConfig() } /> }
           >
             <Container>
                 <Header>

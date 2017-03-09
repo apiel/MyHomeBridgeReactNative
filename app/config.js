@@ -39,10 +39,7 @@ import ConfigStore from './store/configs';
             </Form>
             <Button block style={{margin: 5}} onPress={() => this.props.onSave()}>
                 <Text>Save</Text>
-            </Button>    
-            <Button light block style={{margin: 5}} onPress={() => this.props.onCancel()}>
-                <Text>Cancel</Text>
-            </Button>               
+            </Button>              
         </Content>
     );
   }
