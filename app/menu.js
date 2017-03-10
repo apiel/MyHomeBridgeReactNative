@@ -12,13 +12,8 @@ import type { Config } from './store/configs';
 @observer export default class extends Component {
   configsStore: ConfigsStore;
 
-  constructor() {
-      super();
-      this.configsStore = new ConfigsStore;
-      this.configsStore.init();
-  }
-
   render() {
+    this.configsStore = this.props.configsStore;
     return (
         <Content style={{backgroundColor: '#DDDDDD', opacity:0.9, padding: 10, flex: 1}}>  
             <H1>MyHomeBridge</H1>                 

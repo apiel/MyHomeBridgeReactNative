@@ -15,7 +15,7 @@ export default class {
   STORAGE_KEY_CONFIGS: string = '@MyHomeBridge:configs';
   STORAGE_KEY_ACTIVE: string = '@MyHomeBridge:activeConfig';
 
-  @observable configs: Config[] = [];
+  @observable configs: Config[] = [this.default];
   @observable activeKey: number = 0;
 
   backup: Config;
@@ -29,20 +29,23 @@ export default class {
     port: 3030
   }  
 
-//   constructor() {
-//     this.init();
-//   }
-
   async init() {
       try {
-          const configs: string = await AsyncStorage.getItem(this.STORAGE_KEY_CONFIGS);
-          if (configs) this.configs = JSON.parse(configs);
-          else await this.add();
-          this.backup = toJS(this.get());
-          console.log('AsyncStorage get item', this.configs);
+          await this.initConfigs();
+          await this.initActiveConfig();
       } catch (error) {
           console.log(error);
       }
+  }
+
+  async initConfigs() {
+    const configs: string = await AsyncStorage.getItem(this.STORAGE_KEY_CONFIGS);
+    if (configs) this.configs = JSON.parse(configs);
+    this.backup = toJS(this.get());
+  }
+
+  async initActiveConfig() {
+    this.activeKey = await AsyncStorage.getItem(this.STORAGE_KEY_ACTIVE);
   }
 
   async add() {
@@ -54,11 +57,16 @@ export default class {
   }
 
   get(): Config {
-      return this.configs[this.activeKey];
+    console.log('this.activeKey', this.activeKey);
+    const activeConfig = this.configs[this.activeKey];
+    console.log('activeConfig', activeConfig.name);
+    return activeConfig;
   }
 
   async set(key: number) {
+    console.log('set active key', key);
     this.activeKey = key;
+    console.log('set config', this.activeKey, this.get().name);
     await AsyncStorage.setItem(this.STORAGE_KEY_ACTIVE, this.activeKey.toString());
   }
 

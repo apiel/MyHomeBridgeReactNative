@@ -6,12 +6,12 @@ import { View } from 'react-native';
 import { Content, Text, Button, Form, Input, Item, Label } from 'native-base'; 
 
 import type { Config } from './store/configs';
-import ConfigStore from './store/configs';
+import ConfigsStore from './store/configs';
 
 @observer export default class extends Component {
   render() {
-    const configStore: ConfigStore = this.props.configStore;
-    const config: Config = configStore.get();
+    const ConfigsStore: ConfigsStore = this.props.ConfigsStore;
+    const config: Config = ConfigsStore.get();
     return (
         <Content style={{backgroundColor: '#DDDDDD', opacity:0.9, padding: 10, flex: 1}}>
             <Form style={{marginBottom: 15}}>

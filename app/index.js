@@ -27,11 +27,11 @@ import type { Item } from './store/items';
 import ItemsStore from './store/items';
 
 import type { Config } from './store/configs';
-import ConfigStore from './store/configs';
+import ConfigsStore from './store/configs';
 
 @observer export default class MyHomeBridge extends Component {
   itemsStore: ItemsStore;
-  configStore: ConfigStore;
+  ConfigsStore: ConfigsStore;
 
   styles = StyleSheet.create({
     container: {
@@ -49,27 +49,27 @@ import ConfigStore from './store/configs';
   constructor() {
       super();
       this.itemsStore = new ItemsStore;  
-      this.configStore = new ConfigStore;  
+      this.ConfigsStore = new ConfigsStore;  
       this.init();
   }
 
   async init() {
-      await this.configStore.init();
+      await this.ConfigsStore.init();
       // this.loadConfig();
   }
 
   onCloseDrawerConfig() {
-      this.configStore.restore();
+      this.ConfigsStore.restore();
   }
 
   saveConfig() {
       this._drawerConfig._root.close();
-      this.configStore.save();
+      this.ConfigsStore.save();
       this.loadConfig();
   }
 
   loadConfig() {
-    const config: Config = this.configStore.get();
+    const config: Config = this.ConfigsStore.get();
     this.itemsStore.topicDefinitions = config.topicDefinitions;
     this.itemsStore.host = config.host;
     this.itemsStore.port = config.port;      
@@ -119,13 +119,13 @@ import ConfigStore from './store/configs';
     return (
         <Drawer
             ref={(ref) => { this._drawerMenu = ref; }}
-            content={ <DrawerMenu /> }
+            content={ <DrawerMenu configsStore={ this.ConfigsStore } /> }
         >
-          { this.configStore.isNotEmpty() && <Drawer
+          { this.ConfigsStore.isNotEmpty() && <Drawer
               ref={(ref) => { this._drawerConfig = ref; }}
               side="right"
               onClose={ () => this.onCloseDrawerConfig() }
-              content={ <DrawerConfig configStore={ this.configStore }
+              content={ <DrawerConfig ConfigsStore={ this.ConfigsStore }
                                       onSave={ () => this.saveConfig() } /> }
           >
             <Container>
@@ -136,12 +136,12 @@ import ConfigStore from './store/configs';
                         </Button>
                     </Left>
                     <Body>
-                        <Title>{ this.configStore.get().name }</Title>
+                        <Title>{ this.ConfigsStore.get().name }</Title>
                     </Body>
                     <Right>
                         <Button onPress={() => this._drawerConfig._root.open()} transparent>
                             <Icon name='settings' />
-                        </Button>
+                        </Button>                      
                     </Right>
                 </Header>              
                 <Content>  
