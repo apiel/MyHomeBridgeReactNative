@@ -30,9 +30,10 @@ export default class {
   }  
 
   async init() {
-      try {
+      try {        
           await this.initConfigs();
-          await this.initActiveConfig();
+          await this.initActiveConfig();          
+          this.setBackup();
       } catch (error) {
           console.log(error);
       }
@@ -41,7 +42,6 @@ export default class {
   async initConfigs() {
     const configs: string = await AsyncStorage.getItem(this.STORAGE_KEY_CONFIGS);
     if (configs) this.configs = JSON.parse(configs);
-    this.setBackup();
   }
 
   setBackup() {
