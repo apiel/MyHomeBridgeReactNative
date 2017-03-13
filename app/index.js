@@ -31,7 +31,7 @@ import ConfigsStore from './store/configs';
 
 @observer export default class MyHomeBridge extends Component {
   itemsStore: ItemsStore;
-  ConfigsStore: ConfigsStore;
+  configsStore: ConfigsStore;
 
   styles = StyleSheet.create({
     container: {
@@ -49,31 +49,36 @@ import ConfigsStore from './store/configs';
   constructor() {
       super();
       this.itemsStore = new ItemsStore;  
-      this.ConfigsStore = new ConfigsStore;  
+      this.configsStore = new ConfigsStore;  
       this.init();
   }
 
   async init() {
-      await this.ConfigsStore.init();
+      await this.configsStore.init();
       // this.loadConfig();
   }
 
   onCloseDrawerConfig() {
-      this.ConfigsStore.restore();
+      this.configsStore.restore();
   }
 
-  saveConfig() {
-      this._drawerConfig._root.close();
-      this.ConfigsStore.save();
+  async saveConfig() {
+      await this.configsStore.save();
       this.loadConfig();
+      this._drawerConfig._root.close();      
   }
 
   loadConfig() {
-    const config: Config = this.ConfigsStore.get();
+    const config: Config = this.configsStore.get();
     this.itemsStore.topicDefinitions = config.topicDefinitions;
     this.itemsStore.host = config.host;
     this.itemsStore.port = config.port;      
   }
+
+  onPressDrawerItem(key: number) {
+    this.configsStore.set(key);
+    this._drawerMenu._root.close();
+  }  
 
   renderItems() {
     return this.itemsStore.items.map(item => this.renderCardAction(item));
@@ -119,13 +124,14 @@ import ConfigsStore from './store/configs';
     return (
         <Drawer
             ref={(ref) => { this._drawerMenu = ref; }}
-            content={ <DrawerMenu configsStore={ this.ConfigsStore } /> }
+            content={ <DrawerMenu configsStore={ this.configsStore } 
+                                  onPressItem={ (key: number) => this.onPressDrawerItem(key) } /> }
         >
-          { this.ConfigsStore.isNotEmpty() && <Drawer
+          { this.configsStore.isNotEmpty() && <Drawer
               ref={(ref) => { this._drawerConfig = ref; }}
               side="right"
               onClose={ () => this.onCloseDrawerConfig() }
-              content={ <DrawerConfig ConfigsStore={ this.ConfigsStore }
+              content={ <DrawerConfig ConfigsStore={ this.configsStore }
                                       onSave={ () => this.saveConfig() } /> }
           >
             <Container>
@@ -136,7 +142,7 @@ import ConfigsStore from './store/configs';
                         </Button>
                     </Left>
                     <Body>
-                        <Title>{ this.ConfigsStore.get().name }</Title>
+                        <Title>{ this.configsStore.get().name }</Title>
                     </Body>
                     <Right>
                         <Button onPress={() => this._drawerConfig._root.open()} transparent>

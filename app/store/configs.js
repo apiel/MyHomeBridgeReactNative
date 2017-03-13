@@ -41,6 +41,10 @@ export default class {
   async initConfigs() {
     const configs: string = await AsyncStorage.getItem(this.STORAGE_KEY_CONFIGS);
     if (configs) this.configs = JSON.parse(configs);
+    this.setBackup();
+  }
+
+  setBackup() {
     this.backup = toJS(this.get());
   }
 
@@ -57,16 +61,12 @@ export default class {
   }
 
   get(): Config {
-    console.log('this.activeKey', this.activeKey);
     const activeConfig = this.configs[this.activeKey];
-    console.log('activeConfig', activeConfig.name);
     return activeConfig;
   }
 
   async set(key: number) {
-    console.log('set active key', key);
     this.activeKey = key;
-    console.log('set config', this.activeKey, this.get().name);
     await AsyncStorage.setItem(this.STORAGE_KEY_ACTIVE, this.activeKey.toString());
   }
 
@@ -75,6 +75,8 @@ export default class {
   }
 
   async save() {
+    console.log('save config', this.configs, this.get().name);
     await AsyncStorage.setItem(this.STORAGE_KEY_CONFIGS, JSON.stringify(this.configs));
+    this.setBackup();
   }
 }
